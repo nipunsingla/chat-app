@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Courier+Prime&display=swap" rel="stylesheet">
+
+</head>
+<style>
+    body {
+        font-family: 'Courier Prime', monospace;
+        background: #E6DADA;
+        /* fallback for old browsers */
+        background: -webkit-linear-gradient(to right, #274046, #E6DADA);
+        /* Chrome 10-25, Safari 5.1-6 */
+        background: linear-gradient(to right, #274046, #E6DADA);
+        /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+
+    }
+</style>
+
+<body>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <div style="text-align: center; " class="container jumbotron" id="sidebar">
+
+    </div>
+
+    <div class=" ">
+        <div id="messages">
+
+        </div>
+        <div id="location">
+
+        </div>
+    </div>
+
+
+
+    <form id="message-form">
+
+        <div id="bottom">
+            <input type="text"  class="form-control" id="message" aria-describedby="emailHelp" placeholder="Message"
+                required>
+
+            <button type="submit"  style="float: right; margin-right: 10px;" class="btn btn-primary">send </button>
+
+    </form>
+    <button type="button" class="btn btn-primary" style="float: right; margin-right: 10px;" id="send-location">
+        send location
+    </button>
+
+
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
+    <script id="message-template" type="text/html">
+
+ <div>
+     <ul class="list-group">
+     <li class="list-group-item">
+
+         <b>{{username}}: </b>{{message}} <span style="float: right" class="badge badge-primary badge-pill">{{createdAt}}
+         </li>
+        </ul>
+  </div>
+</script>
+    <script id="location-template" type="text/html">
+
+<div>
+    <ul class="list-group">
+    <li class="list-group-item">
+        <b>{{username}}: </b>
+    <a href={{url}}>
+        see my location
+    </a>
+    
+     <span style="float: right" class="badge badge-primary badge-pill">{{createdAt}}
+    </li>
+   </ul>
+
+</p>
+</div>
+</script>
+    <script id="sideTemplate" type="text/html">
+
+<h1 style="color: red" class="display-4">{{room}}</h1>
+<hr>
+<h4 class="alert alert-primary">USERS</h4>
+    <ul class="list-group">
+{{#users}}
+<li class="list-group-item">
+{{username}}
+{{/users}}
+</li></ul>
+
+</script>
+
+
+
+    <script>
+
+
+        const socket = io();
+        socket.on('countIncrement', (count) => {
+     //       console.log('it has been updated ', count);
+        })
+        const $messageForm = document.querySelector('#message-form');
+        const $messageFormInput = $messageForm.querySelector('input');
+        const $messageFormButton = $messageForm.querySelector('button')
+        const $getlocation = document.querySelector('#send-location')
+        const messages = document.querySelector('#messages')
+        const messageTemplate = document.querySelector('#message-template').innerHTML
+        const $location = document.querySelector('#location')
+        const locationTemplate = document.querySelector('#location-template').innerHTML
+        const { user, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
+        const sideTemplate = document.querySelector('#sideTemplate').innerHTML
+        //console.log('hey', user, room)
+        const autoscroll = () => {
+            // New message element
+            const $newMessage = messages.lastElementChild
+
+            // Height of the new message
+            const newMessageStyles = getComputedStyle($newMessage)
+            const newMessageMargin = parseInt(newMessageStyles.marginBottom)
+            const newMessageHeight = $newMessage.offsetHeight + newMessageMargin
+
+            const visibleHeight = messages.offsetHeight
+
+            const containerHeight = messages.scrollHeight
+
+            const scrollOffset = messages.scrollTop + visibleHeight
+
+            if (containerHeight - newMessageHeight <= scrollOffset) {
+                messages.scrollTop = messages.scrollHeight
+            }
+        }
+        socket.on('message', (message) => {
+         //   console.log(message)
+            const html = Mustache.render(messageTemplate, {
+                username: message.username,
+                message: message.text,
+                createdAt: moment(message.createdAt).format('h:mm a')
+            })
+            messages.insertAdjacentHTML('beforeend', html)
+            autoscroll()
+        })
+        socket.on('locationMessage', (url) => {
+         //   console.log(url.url);
+            const html = Mustache.render(locationTemplate, {
+                username: url.username,
+                url: url.url,
+                createdAt: moment(url.createdAt).format('h:mm a')
+            })
+            $location.insertAdjacentHTML('beforebegin', html)
+            autoscroll()
+
+        })
+        document.querySelector('#message-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            $messageFormButton.setAttribute('disabled', 'disabled')
+            var message = document.querySelector('input').value;
+            //  console.log(message)
+            socket.emit('sendMessage', message, (message) => {
+                $messageFormButton.removeAttribute('disabled')
+                $messageFormInput.value = ''
+                $messageFormInput.focus()
+                if (message)
+                    console.log('the message has been delievered ', message);
+            });
+
+        })
+        document.querySelector('#send-location').addEventListener('click', () => {
+            $getlocation.setAttribute('disabled', 'disabled')
+            if (!navigator.geolocation) {
+                return alert('geolocation is not supported by your browser')
+            }
+            navigator.geolocation.getCurrentPosition((position) => {
+                socket.emit('getLocation', { lattitude: position.coords.latitude, longitude: position.coords.longitude }, () => {
+                    $getlocation.removeAttribute('disabled')
+               //     console.log('location shared')
+                })
+                //           console.log(position.coords.latitude,position.coords.longitude)
+            }
+            )
+        })
+        socket.on('roomdata', ({ room, users }) => {
+            const html = Mustache.render(sideTemplate, {
+                room,
+                users
+            })
+            document.querySelector('#sidebar').innerHTML = html
+        })
+        socket.emit('join', { user, room }, (err) => {
+            if (err) {
+                alert(err)
+                location.href = '/'
+            }
+        })
+    </script>
+
+</body>
+
+</html>
