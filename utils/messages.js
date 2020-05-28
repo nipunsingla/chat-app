@@ -2,14 +2,22 @@ const generateMessage=(username,text)=>{
         return{
             username,
             text,
-            createdAt:new Date().getTime()
+            createdAt:Date().now
         }
+}
+const generateMessage1=(username,text,time)=>{
+    console.log(username,text,time)
+    return{
+        username,
+        text,
+        createdAt:time
+    }
 }
 const generateLocation=(username,url)=>{
     return {
         username,
         url,
-        createdAt:new Date().getTime()
+        createdAt: Date().now
     }
 }
-module.exports={generateMessage,generateLocation};
+module.exports={generateMessage,generateLocation,generateMessage1};

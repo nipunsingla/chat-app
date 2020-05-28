@@ -18,9 +18,14 @@
   "homepage": "https://github.com/nipunsingla/chat-app#readme",
   "dependencies": {
     "bad-words": "^3.0.3",
+    "body-parser": "^1.19.0",
+    "connect": "^3.7.0",
+    "cookie-parser": "^1.4.5",
     "ejs": "^2.7.4",
     "express": "^4.17.1",
     "http": "0.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.16",
     "path": "^0.12.7",
     "socket.io": "^2.2.0"
   }

@@ -7,7 +7,7 @@ const addUser=({id,username,room})=>{
         return user.room===room && user.username===username
     })
     if(existingUser){
-        console.log('exisitnh')
+        console.log('exisitg')
         return {
             error:'Username is in use'
         }
@@ -25,7 +25,6 @@ const removeUser=(id)=>{
     }
 }
 const getUser=(id)=>{
-    console.log(users[0],id)
     return users.filter((user)=>user.id===id)
 }
 const getUserInRoom=(room)=>users.filter((user)=>user.room===room)

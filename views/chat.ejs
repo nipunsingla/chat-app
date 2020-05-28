@@ -21,20 +21,75 @@
         /* Chrome 10-25, Safari 5.1-6 */
         background: linear-gradient(to right, #274046, #E6DADA);
         /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        overflow: hidden;
 
+    }
+
+    .myclass {
+        height: 45vh;
+
+        overflow: auto;
+    }
+
+    .header {
+        height: 40vh;
+        overflow: auto;
+    }
+
+    .prev {
+        float: right;
+        margin-right: 10px;
+    }
+
+    .send {
+        float: right;
+        margin-right: 10px;
+    }
+
+    @media only screen and (max-width:600px) {
+        .myclass {
+            height: 40vh;
+        }
+
+        .prev {
+            width: 20vh;
+            float: left;
+        }
+
+        .send {
+            width: 20vh;
+
+
+            float: left;
+
+            margin-right: 5;
+        }
+
+        .sen {
+            width: 10vh;
+
+
+            float: left;
+
+            margin-right: 20;
+        }
 
     }
 </style>
 
 <body>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
+
     <script src="/socket.io/socket.io.js"></script>
 
-    <div style="text-align: center; " class="container jumbotron" id="sidebar">
+    <div style="text-align: center; " class="container jumbotron header" id="sidebar">
 
     </div>
 
-    <div class=" ">
+    <div class="myclass">
         <div id="messages">
 
         </div>
@@ -48,31 +103,33 @@
     <form id="message-form">
 
         <div id="bottom">
-            <input type="text"  class="form-control" id="message" aria-describedby="emailHelp" placeholder="Message"
+            <input type="text" class="form-control" id="message" aria-describedby="emailHelp" placeholder="Message"
                 required>
 
-            <button type="submit"  style="float: right; margin-right: 10px;" class="btn btn-primary">send </button>
-
+            <button type="submit" style="float: right; margin-right: 10px;" class="sen btn btn-primary">send </button>
+        </div>
     </form>
-    <button type="button" class="btn btn-primary" style="float: right; margin-right: 10px;" id="send-location">
-        send location
+
+    <button type="button" class="send btn btn-primary" id="send-location">
+        Use location
+    </button>
+
+    <button onclick="Previous()" class="prev btn btn-primary">
+        Last Chat
     </button>
 
 
 
 
 
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
     <script id="message-template" type="text/html">
 
- <div>
+ <div >
+
      <ul class="list-group">
      <li class="list-group-item">
 
-         <b>{{username}}: </b>{{message}} <span style="float: right" class="badge badge-primary badge-pill">{{createdAt}}
+         <b>{{s}} </b>{{m}}<span style="float: right" class="badge badge-primary badge-pill">{{t}}
          </li>
         </ul>
   </div>
@@ -96,89 +153,114 @@
 </script>
     <script id="sideTemplate" type="text/html">
 
-<h1 style="color: red" class="display-4">{{room}}</h1>
+<h1 style="color: red" class="display-5">{{room}}</h1>
 <hr>
-<h4 class="alert alert-primary">USERS</h4>
+<h5 class="alert alert-primary">USERS</h5>
     <ul class="list-group">
 {{#users}}
 <li class="list-group-item">
 {{username}}
 {{/users}}
-</li></ul>
+</li>
+</ul>
 
 </script>
 
 
 
     <script>
-
-
+        let arr = [];
         const socket = io();
         socket.on('countIncrement', (count) => {
-     //       console.log('it has been updated ', count);
         })
         const $messageForm = document.querySelector('#message-form');
         const $messageFormInput = $messageForm.querySelector('input');
         const $messageFormButton = $messageForm.querySelector('button')
         const $getlocation = document.querySelector('#send-location')
-        const messages = document.querySelector('#messages')
+        var messages = document.querySelector('#messages')
         const messageTemplate = document.querySelector('#message-template').innerHTML
         const $location = document.querySelector('#location')
         const locationTemplate = document.querySelector('#location-template').innerHTML
         const { user, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
-        const sideTemplate = document.querySelector('#sideTemplate').innerHTML
-        //console.log('hey', user, room)
-        const autoscroll = () => {
-            // New message element
-            const $newMessage = messages.lastElementChild
+        const sideTemplate = document.querySelector('#sideTemplate').innerHTML;
+        var myclass = document.querySelector(".myclass");
+        function copy({ s, m, t }) {
+            let flag = 0;
+            arr.map((value) => {
+                if (value.s == s && value.m == m && value.t == t) {
+                    flag = 1;
+                    return true;
+                }
+            })
+            if (flag)
+                return true;
+            return false;
+        }
+        async function Previous() {
 
-            // Height of the new message
-            const newMessageStyles = getComputedStyle($newMessage)
-            const newMessageMargin = parseInt(newMessageStyles.marginBottom)
-            const newMessageHeight = $newMessage.offsetHeight + newMessageMargin
+            await socket.emit('previousMessage', async (message1) => {
+                message1.map(async (value) => {
+                    var check = await copy({ s: value.Sender, m: value.Message, t: moment(value.Time).from(Date.now()) });
+                    if (check == false) {
+                        arr.push({ s: value.Sender, m: value.Message, t: moment(value.Time).from(Date.now()) })
+                        const html = Mustache.render(messageTemplate, {
+                            s: value.Sender,
+                            m: value.Message,
 
-            const visibleHeight = messages.offsetHeight
+                            t: moment(value.Time).from(Date.now())
+                        })
+                        messages.insertAdjacentHTML('beforebegin', html)
 
-            const containerHeight = messages.scrollHeight
+                        myclass.scrollTop = myclass.scrollHeight - myclass.clientHeight;
+                    }
+                }
 
-            const scrollOffset = messages.scrollTop + visibleHeight
+                )
 
-            if (containerHeight - newMessageHeight <= scrollOffset) {
-                messages.scrollTop = messages.scrollHeight
-            }
+
+            })
+
         }
         socket.on('message', (message) => {
-         //   console.log(message)
-            const html = Mustache.render(messageTemplate, {
-                username: message.username,
-                message: message.text,
-                createdAt: moment(message.createdAt).format('h:mm a')
+            //   console.log(message)
+            arr.push({
+                s: message.username,
+                m: message.text,
+
+                t: moment(message.createdAt).from(Date.now())
             })
-            messages.insertAdjacentHTML('beforeend', html)
-            autoscroll()
+
+            const html = Mustache.render(messageTemplate, {
+                s: message.username,
+                m: message.text,
+                t: moment(message.createdAt).from(Date.now())
+            })
+            messages.insertAdjacentHTML('beforebegin', html)
+
+            myclass.scrollTop = myclass.scrollHeight - myclass.clientHeight;
         })
         socket.on('locationMessage', (url) => {
-         //   console.log(url.url);
+
             const html = Mustache.render(locationTemplate, {
                 username: url.username,
                 url: url.url,
                 createdAt: moment(url.createdAt).format('h:mm a')
             })
             $location.insertAdjacentHTML('beforebegin', html)
-            autoscroll()
 
+            myclass.scrollTop = myclass.scrollHeight - myclass.clientHeight;
         })
         document.querySelector('#message-form').addEventListener('submit', (e) => {
             e.preventDefault();
             $messageFormButton.setAttribute('disabled', 'disabled')
             var message = document.querySelector('input').value;
-            //  console.log(message)
+
+
             socket.emit('sendMessage', message, (message) => {
                 $messageFormButton.removeAttribute('disabled')
                 $messageFormInput.value = ''
                 $messageFormInput.focus()
-                if (message)
-                    console.log('the message has been delievered ', message);
+                if (message);
             });
 
         })
@@ -190,7 +272,7 @@
             navigator.geolocation.getCurrentPosition((position) => {
                 socket.emit('getLocation', { lattitude: position.coords.latitude, longitude: position.coords.longitude }, () => {
                     $getlocation.removeAttribute('disabled')
-               //     console.log('location shared')
+                    //     console.log('location shared')
                 })
                 //           console.log(position.coords.latitude,position.coords.longitude)
             }
@@ -206,7 +288,7 @@
         socket.emit('join', { user, room }, (err) => {
             if (err) {
                 alert(err)
-                location.href = '/'
+                location.href = '/';
             }
         })
     </script>

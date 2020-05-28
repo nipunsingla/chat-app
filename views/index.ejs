@@ -20,19 +20,40 @@ body {
   height: 100%;
   background-image:linear-gradient(white,grey,black)
 }
+.group{
+  max-height:30vh;
+  overflow: auto;
+}
 </style>
   </head>
 
 
 <body style="background-color: gr;">
  
-  <div class="container" style="margin-right: auto; margin-left: auto; padding: 10px; margin-top: 15%;">
-    <h1 style="text-align: center;" class="alert alert-primary"> CHAT APP</h1>
+  <div class="container" style="margin-right: auto; margin-left: auto; padding: 10px;">
+    <h1 style="text-align: center;" class="alert alert-primary"> CHAT APP
+   
+  </h1>
+  <h3 style="text-align: center;" class="alert alert-light">
+    Groups
+  </h3>
+<div class="group">
+
+    <% for(var i=0;i< group.length ; i++) {%>
+     <h3 style="cursor:pointer; text-align:center;" class="alert alert-success">
+
+      <a  href='/chat?user=<%= name%>&room=<%= group[i].name%>'> <%= group[i].name %></a>
+    </h3>
+
+<%} %>
+ 
+</div>
+  
     <div class="" style="background:rgba(6, 89, 138, 0.397);border-radius: 10px;">
-    <form action='/chat' method="GET" style="padding: 10px;">
+    <form action='/chat' method="GET" style="padding: 10px;" enctype="application/x-www-form-urlencoded">
         <div class="form-group">
           <label for="user">User</label>
-          <input name="user" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="User" required>
+          <input name="user" value="<%= name%>" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="User" required>
          </div>
         <div class="form-group">
           <label for="exampleInputPassword1">GROUP NAME</label>

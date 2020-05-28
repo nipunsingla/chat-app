@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CHAT APP</title>
+    <link rel="icon" href="../public/image/download.jpeg" type="image/icon type">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Courier+Prime&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-auth.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+    </script> <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-analytics.js"></script>
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyBw1lb4TnL95TPBhjOeVpqSgRBtbnUFIEg",
+            authDomain: "chat-app-bbe47.firebaseapp.com",
+            databaseURL: "https://chat-app-bbe47.firebaseio.com",
+            projectId: "chat-app-bbe47",
+            storageBucket: "chat-app-bbe47.appspot.com",
+            messagingSenderId: "769121017333",
+            appId: "1:769121017333:web:e9b723b9869825a3f914bc",
+            measurementId: "G-LJT2N8WTR5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+        const auth = firebase.auth();
+        var provider = new firebase.auth.GoogleAuthProvider();
+
+        function signInWithGoogle() {
+            var password = document.querySelector('#password');
+                var password1 = document.querySelector('#confirm-password');
+                var email=  document.querySelector('#email').value;
+               
+                if(password.value!=password1.value){
+                    alert('both password should be same');
+                    window.location.href='/signUp';
+                }
+                
+            auth.signInWithPopup(provider).then(async function (result) {
+                var token = result.credential.accessToken;
+                var user = result.user.displayName;
+                
+                var imageUrl = result.additionalUserInfo.profile.picture;
+                var promise=await auth.createUserWithEmailAndPassword(email,password.value)
+                .then(()=>{
+                    $.post('/addUser',{
+                        name : user,
+                        imageUrl : imageUrl,
+                        password : password.value,
+                        email : email
+                       
+                    },(data,status)=>{
+                        console.log(status,data);
+                        if(status=='success'){
+                            window.location.href='/logined/'+email
+                        }
+                        else{
+                            alert(data.message);
+                            window.location.href='/signUp'
+                        }
+                    })
+                })
+                .catch((err)=>{
+                    alert(err);
+                    window.location.href='/signUp';
+                });
+    
+               
+
+            }).catch(function (error) {
+                // Handle Errors here.
+                console.log(error)
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                // The email of the user's account used.
+                var email = error.email;
+                // The firebase.auth.AuthCredential type that was used.
+                var credential = error.credential;
+                console.log(error)
+            });
+        }
+
+    </script>
+
+<style>
+    .back{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        justify-items: center;
+        flex-wrap: wrap;
+        padding:2%;
+        background-image: linear-gradient(to right, #bdc3c7, #2c3e50);
+        margin-top:25vh;
+        width:80vw;
+        margin-left:8vw
+    }
+    button{
+        margin-top: 1%;
+    }
+</style></head>
+<body class="Container back">
+
+    <div>
+        <h1 style="text-align: center;" class="alert alert-primary"> CHAT APP
+       
+        </h1>
+    </div>
+    <div class="form-group">
+  
+        <label for="exampleInputemail">Email</label>
+      <input id="email" type="email" class="form-control" aria-describedby="emailHelp" placeholder="Enter email" required>
+    
+    </div>
+    
+        <div class="form-group">
+  
+            <label for="exampleInputPassword1">Password</label>
+          <input id="password" type="password" class="form-control" aria-describedby="emailHelp" placeholder="Enter Password" required>
+        
+        </div>
+        <div class="form-group">
+          <label for="exampleInputPassword1">Confirm Password</label>
+          <input id="confirm-password" type="password" class="form-control"  placeholder="Confirm Password" required>
+        </div>
+        <button  class='btn btn-primary' onclick="signInWithGoogle()">
+            SignUp
+        </button>
+
+        
+        
+
+    </div>
+</body>
+
+</html>
