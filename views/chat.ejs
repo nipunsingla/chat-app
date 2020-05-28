@@ -46,34 +46,18 @@
         margin-right: 10px;
     }
 
-    @media only screen and (max-width:600px) {
+    @media only screen and (max-width:640px) {
         .myclass {
             height: 36vh;
         }
 
-        .prev {
-            width: 20vh;
-            float: left;
-        }
-
-        .send {
-            width: 20vh;
-
-
-            float: left;
-
-        }
-
-        .sen {
-            width: 10vh;
-
-
-            float: left;
-
+        button{
+            width:100%;
+            margin-top:2%
         }
 
     }
-    @media only screen and (max-height:1000px) {
+    @media only screen and (max-height:600px) {
         body{
             overflow: auto;
         }
@@ -104,7 +88,7 @@
 
 
 
-    <form id="message-form">
+    <form id="row message-form">
 
         <div id="bottom">
             <input type="text" class="form-control" id="message" aria-describedby="emailHelp" placeholder="Message"
@@ -114,6 +98,8 @@
         </div>
     </form>
 
+    <div className='row'>
+
     <button type="button" class="send btn btn-primary" id="send-location">
         Use location
     </button>
@@ -121,7 +107,8 @@
     <button onclick="Previous()" class="prev btn btn-primary">
         Last Chat
     </button>
-
+</div>
+    
 
 
 
