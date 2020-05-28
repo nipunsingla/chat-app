@@ -26,7 +26,7 @@
     }
 
     .myclass {
-        height: 45vh;
+        height: 43vh;
 
         overflow: auto;
     }
@@ -50,7 +50,9 @@
         .myclass {
             height: 36vh;
         }
-
+        body{
+            overflow: hidden;
+        }
         button{
             width:100%;
             margin-top:2%;
@@ -89,7 +91,7 @@
 
 
 
-    <form id="row message-form">
+    <form id="message-form">
 
         <div id="bottom">
             <input type="text" class="form-control" id="message" aria-describedby="emailHelp" placeholder="Message"
@@ -99,7 +101,6 @@
         </div>
     </form>
 
-    <div className='row'>
 
     <button type="button" class="send btn btn-primary" id="send-location">
         Use location
@@ -108,7 +109,7 @@
     <button onclick="Previous()" class="prev btn btn-primary">
         Last Chat
     </button>
-</div>
+
     
 
 
