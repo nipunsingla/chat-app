@@ -45,27 +45,48 @@
         float: right;
         margin-right: 10px;
     }
+    .sen{
+        float: right; 
+        margin-right: 10px;
+    }
 
     @media only screen and (max-width:640px) {
         .myclass {
             height: 36vh;
         }
-        body{
+
+        body {
             overflow: hidden;
         }
-        button{
-            width:100%;
-            margin-top:2%;
-            margin-right:0%;
+
+        .header {
+            height: 40vh;
+            overflow: auto;
+        }
+
+        .prev {
+            float: right;
+            margin-right: 0;
+        }
+        .sen{
+            margin-right: 0;
+        }
+        .send {
+            margin-right:0;
+        }
+
+        button {
+            width: 100%;
+            margin-top:1%;
         }
 
     }
+
     @media only screen and (max-height:800px) {
-        body{
+        body {
             overflow: auto;
         }
     }
-    
 </style>
 
 <body>
@@ -97,7 +118,7 @@
             <input type="text" class="form-control" id="message" aria-describedby="emailHelp" placeholder="Message"
                 required>
 
-            <button type="submit" style="float: right; margin-right: 10px;" class="sen btn btn-primary">send </button>
+            <button type="submit"  class="sen btn btn-primary">send </button>
         </div>
     </form>
 
@@ -110,7 +131,7 @@
         Last Chat
     </button>
 
-    
+
 
 
 
