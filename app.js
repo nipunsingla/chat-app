@@ -56,8 +56,10 @@ app.use(express.static(directory_path));
 app.set('view engine', 'ejs');
 
 app.get('/', verifyToken,(req, res) => {
-
+    if(req.user.email!=undefined)
     res.redirect('/logined/'+req.user.email);
+    else
+    res.render('login')
 })
 
 
