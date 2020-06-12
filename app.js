@@ -22,12 +22,10 @@ mongoose.connect('mongodb+srv://Nipun:nipun@cluster0-6kwx6.mongodb.net/test?retr
     .catch(err => { console.log(err); })
 const Group = require('./group.js')
 const User = require('./user.js')
-const generateToken = (res, {username,email}) => {
+const generateToken =async (res, {username,email}) => {
     const expiration = 604800000000000;
-    console.log('sjdknkfn');
-    const token = jwt.sign({ username ,email}, secret);
-
-    return res.cookie('token', token, {
+    const token =await jwt.sign({ username ,email}, secret);
+   return res.cookie('token', token, {
         expires: new Date(Date.now() + expiration)
     });
 };
@@ -46,7 +44,12 @@ const verifyToken = async (req, res, next) => {
                 username: decrypt.username,
                 email:decrypt.email
             };
-            next();
+            if(req.user.username==undefined || req.user.email==undefined){
+                res.render('login');
+            }
+            else{
+                next();
+            }
         } catch (err) {
             return res.render('login');
         }
@@ -57,21 +60,25 @@ app.set('view engine', 'ejs');
 
 app.get('/', verifyToken,(req, res) => {
     if(req.user.email!=undefined)
-    res.redirect('/logined/'+req.user.email);
+        res.redirect('/logined');
     else
-    res.render('login')
+        res.render('login')
 })
 
 app.post('/checkUser',(req,res)=>{
     const {email,password}=req.body;
     User.findOne({email:email,password:password})
-    .then((doc)=>{
+    .then(async (doc)=>{
         if(doc){
-            res.status(200).json({message:'message'});
+            await generateToken(res,{username:doc.name,email:email});
+            res.status(200).json({message:'congo'});
         }
         else{
-            res.status(400).json({message:'user not find'});
+            res.status(200).json({message:'user credentials are wrong'});
         }
+    })
+    .catch((err)=>{
+        res.status(200).json({message:'some error'});
     })
 
 })
@@ -80,14 +87,13 @@ app.get('/signup', (req, res) => {
 })
 app.post('/addUser', async (req, res) => {
     const data=req.body;
-    console.log(data);
+   
     await User.findOne({ email: data.email })
         .then((doc) => {
             if (doc) {
                  res.status(800).json({'message':'already present'});
             }
             else {
-                console.log('hello world')
                 const newUser = new User({
                     name: data.name,
                     email: data.email,
@@ -105,32 +111,25 @@ app.post('/addUser', async (req, res) => {
             }
         })
 })
-app.get('/logined/:email', async (req, res) => {
-    if (req.params.email != null) {
+app.get('/logined', verifyToken,async (req, res) => {
         var username;
         let group=[];
-        await User.findOne({email:req.params.email})
+        await User.findOne({email:req.user.email})
         .then((doc)=>{
-            username=doc.name;
-            group=doc.group
+            if(doc){
+                username=doc.name;
+                group=doc.group
+            }
         })
-        generateToken(res, {username:username,email:req.params.email});
         res.render('index', { name:username,group :group});
-    }
-    else {
-        res.render('login');
-    }
 })
 app.get('/chat', verifyToken, async (req, res) => {
-    console.log(req.query);
     if(req.query==null){
         res.render('login');
     }
     else{
-        console.log(req.user.email)
         await User.findOne({email:req.user.email})
         .then((doc)=>{
-            console.log('hwllo')
             doc.group=doc.group.filter((value)=>{
                 if(value.name!=req.query.room)
                 return true;
@@ -141,7 +140,6 @@ app.get('/chat', verifyToken, async (req, res) => {
       res.render('chat');
     }
 })
-
 let count = 0;
 let serv = 0;
 const io = socketio(server);

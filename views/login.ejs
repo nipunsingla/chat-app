@@ -11,7 +11,9 @@
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Courier+Prime&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+    </script>
+   
 
     <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-auth.js"></script>
 
@@ -40,13 +42,11 @@
             var email = document.querySelector('#email').value;
             var password = document.querySelector('#password').value;
             $.post('/checkUser', {
-                name: email,
+                email: email,
                 password: password
             }, (data, status) => {
-                console.log(status);
-                if (status == 'sucesss') {
-                    window.location.href = '/logined/' + email;
-
+                if (data.message == 'congo') {
+                    window.location.href = '/logined';
                 }
                 else {
                     alert(data.message);

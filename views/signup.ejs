@@ -32,7 +32,7 @@
         var provider = new firebase.auth.GoogleAuthProvider();
 
         function signInWithGoogle() {
-            console.log('dsdsndn')
+       
             var password = document.querySelector('#password');
                 var password1 = document.querySelector('#confirm-password');
                 if(password.value!=password1.value){
@@ -59,9 +59,9 @@
                         email : email
                        
                     },(data,status)=>{
-                        console.log(status,data);
+                   
                         if(status=='success'){
-                            window.location.href='/logined/'+email
+                            window.location.href='/logined'
                         }
                         else{
                             alert(data.message);
@@ -71,14 +71,14 @@
                 })
                 .catch(function (error) {
                 // Handle Errors here.
-                console.log(error)
+              
                 var errorCode = error.code;
                 var errorMessage = error.message;
                 // The email of the user's account used.
                 var email = error.email;
                 // The firebase.auth.AuthCredential type that was used.
                 var credential = error.credential;
-                console.log(error)
+         
             });
         }
 
