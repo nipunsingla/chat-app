@@ -62,7 +62,19 @@ app.get('/', verifyToken,(req, res) => {
     res.render('login')
 })
 
+app.post('/checkUser',(req,res)=>{
+    const {email,password}=req.body;
+    User.findOne({email:email,password:password})
+    .then((doc)=>{
+        if(doc){
+            res.status(200).json({message:'message'});
+        }
+        else{
+            res.status(400).json({message:'user not find'});
+        }
+    })
 
+})
 app.get('/signup', (req, res) => {
     res.render('signup');
 })

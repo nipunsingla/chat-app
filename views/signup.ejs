@@ -32,23 +32,27 @@
         var provider = new firebase.auth.GoogleAuthProvider();
 
         function signInWithGoogle() {
+            console.log('dsdsndn')
             var password = document.querySelector('#password');
                 var password1 = document.querySelector('#confirm-password');
-                var email=  document.querySelector('#email').value;
-               
                 if(password.value!=password1.value){
                     alert('both password should be same');
                     window.location.href='/signUp';
                 }
+                if(password.value.length<6){
+                    alert('password size should be greater than 6');
+                    window.location.href='/signUp';
+         
+                }
                 
-            auth.signInWithPopup(provider).then(async function (result) {
+            auth.signInWithPopup(provider).
+            then(async function (result){
                 var token = result.credential.accessToken;
                 var user = result.user.displayName;
-                
                 var imageUrl = result.additionalUserInfo.profile.picture;
-                var promise=await auth.createUserWithEmailAndPassword(email,password.value)
-                .then(()=>{
-                    $.post('/addUser',{
+                var email=  result.user.email;
+               
+                   $.post('/addUser',{
                         name : user,
                         imageUrl : imageUrl,
                         password : password.value,
@@ -65,14 +69,7 @@
                         }
                     })
                 })
-                .catch((err)=>{
-                    alert(err);
-                    window.location.href='/signUp';
-                });
-    
-               
-
-            }).catch(function (error) {
+                .catch(function (error) {
                 // Handle Errors here.
                 console.log(error)
                 var errorCode = error.code;
@@ -113,10 +110,8 @@
     </div>
     <div class="form-group">
   
-        <label for="exampleInputemail">Email</label>
-      <input id="email" type="email" class="form-control" aria-describedby="emailHelp" placeholder="Enter email" required>
-    
-    </div>
+        <h4  style='color:white;text-align: center;'>The App Will Use Your Google Mail ,just Provide password for all time Login</h4>
+     
     
         <div class="form-group">
   
